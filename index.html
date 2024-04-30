@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>World Recipes</title>
+        <link rel="stylesheet" href="styles.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+        <script type="text/javascript" src="script.js" defer></script>
+    </head>
+    <body>
+        <div class="card">
+            <div class="search">
+                <input type="text" placeholder="Recipe" spellcheck="false">
+                <button><img src="images/search.png"> </button>
+            </div>
+            <label for="filter">Type of filter:</label>
+            <select>
+                <option value="recipe">By dish</option>
+                <option value="ingredient">By ingredient</option>
+                <option value="category">By category</option>
+                <option value="nationality">By nationality</option>
+            </select>
+        </div>
+        <div class="request">
+            <!--<div class="item">
+                <div class="photo">
+                    PHOTO <img src="images/check-mark.png">
+                </div>
+                <div class="description">
+                    description
+                </div>
+            </div>-->
+        </div>
+        <div class="error">
+            <p> Valor ingresado no válido </p>
+        </div>
+    </body>
+</html>
