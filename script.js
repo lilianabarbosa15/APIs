@@ -1,8 +1,8 @@
 /*Tipos de API a tener en cuenta*/ 
-let APIRecipe = 'http://www.themealdb.com/api/json/v1/1/search.php?s='
-let APIIngredient = 'http://www.themealdb.com/api/json/v1/1/filter.php?i='
-let APICategory = 'http://www.themealdb.com/api/json/v1/1/filter.php?c='
-let APINationality = 'http://www.themealdb.com/api/json/v1/1/filter.php?a='
+let APIRecipe = 'https://www.themealdb.com/api/json/v1/1/search.php?s='
+let APIIngredient = 'https://www.themealdb.com/api/json/v1/1/filter.php?i='
+let APICategory = 'https://www.themealdb.com/api/json/v1/1/filter.php?c='
+let APINationality = 'https://www.themealdb.com/api/json/v1/1/filter.php?a='
 let APIused = APIRecipe
 
 /*Despliegue del menú de opciones de filtrado, por defecto está por plato*/
