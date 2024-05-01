@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>World Recipes</title>
         <link rel="stylesheet" href="styles.css">
+        <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
         <script type="text/javascript" src="script.js" defer></script>
@@ -28,8 +29,17 @@
                 <div id="dis-name"><em>Name class="ful-img" id="recipeB</em></div>
                 <div id="dish-info">
                     <div id="dis-img"><img src="" id="fulImg"></div>
-                    <div id="dis-ingre">Ingredients<ul class="list-dis-ingre"></ul></div>
-                    <div id="dis-reci">Prepation<p class="inst-text"></p></div>
+                    <div id="dis-ingre">Ingredients
+                        <div class="link-dis-ingre">
+                            <a class="link" href="https://www.google.com/">
+                                <abbr title="Link de la receta a YouTube">
+                                    <img src="images\link.png"/>
+                                </abbr>
+                            </a>
+                        </div>
+                        <ul class="list-dis-ingre"></ul>
+                    </div>
+                    <div id="dis-reci">Preparation<p class="inst-text"></p></div>
                 </div>
                 <span onclick="closeImg()">X</span>
             </div>

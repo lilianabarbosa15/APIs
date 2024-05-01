@@ -42,6 +42,7 @@ body{
     flex: 1;
     margin-right: 16px;
     font-size: 18px;
+    font-family: "Josefin Sans", sans-serif;
 }
 
 .search button{
@@ -115,6 +116,15 @@ select{
     font-size: 14px;
 }
 
+.link-dis-ingre{
+    display: inline;
+}
+
+.link-dis-ingre a img{
+    width: 15px;
+    height: 15px;
+}
+
 .ful-img span{
     position: absolute;
     top: 5%;
@@ -123,6 +133,7 @@ select{
     color: #fff;
     cursor: pointer;
 }
+
 /**/
 
 div.item{

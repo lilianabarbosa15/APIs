@@ -30,14 +30,13 @@ async function consultarApi(url){
         //console.log(response)
         return response.data;
     }catch(error){
-        console.log("entra a error!")
         console.error(`fallo la consulta a la api: ${error}`);
         updateWindow(false);
     }
 }
 async function obtenerDatosDish(url){
     const datos = await consultarApi(url);
-    console.log(datos)
+    //console.log(datos)
     const Names = new Array();
     const Images = new Array();
     if(Array.isArray(datos.meals)==true){ //datos correctos
@@ -49,8 +48,8 @@ async function obtenerDatosDish(url){
     }else{
         updateWindow(false);
     }
-    console.log(Names);
-    console.log(Images);
+    //console.log(Names);
+    //console.log(Images);
     crearGalería(Names,Images)
 }
 
@@ -69,19 +68,15 @@ searchButton.addEventListener( /*Se agrega CallBack, función que se ejecuta en 
                 obtenerDatosDish(APIused+inputData)
             }
         }else if((APIused.lastIndexOf('i') === APIused.length-2)){  //Por ingrediente
-            console.log("por ingrediente");
             if(verifIngredient("https://www.themealdb.com/api/json/v1/1/list.php?i=list",inputData)){
                 inputData = inputData.replace(/ /g, "_");    
                 obtenerDatosDish(APIused+inputData)
             }
         }else if ((APIused.lastIndexOf('a') === APIused.length-2)){ //Por nacionalidad
-            console.log("por nacionalidad");
             if(verifNationality(inputData)){
-                console.log("Nacionalidad verificada")
                 obtenerDatosDish(APIused+inputData)
             }
         }else{                                                      //Por plato
-            console.log("por plato")
             obtenerDatosDish(APIused+inputData);
         }
     }
@@ -106,7 +101,7 @@ function verifNationality(input){
 /*Verificación de ingrediente*/
 async function verifIngredient(url,input){
     const datos = await consultarApi(url);
-    console.log(datos)
+    //console.log(datos)
     for(let e of datos.meals){
         //console.log(e.strIngredient)
         if(e.strIngredient.toLowerCase() === input.toLowerCase()){
@@ -154,6 +149,7 @@ function updateWindow(state){
 const recipeBox = document.querySelector(".ful-img");
 const nameRecipe = document.getElementById("dis-name");
 const fulImg = document.getElementById("fulImg");
+const linkRecipe = document.querySelector(".link");
 async function openFulImg(urlImg, name){
     /*
     Función que recibe la url de la imagen para poder adjuntarla a 
@@ -162,21 +158,22 @@ async function openFulImg(urlImg, name){
     plato especifico. Además, llama a otra función (CallBack) con el
     fin de modificar la página con especificaciones de la receta señalada.
     */
-    console.log(recipeBox)
+    //console.log(recipeBox)
     nameRecipe.innerHTML=name;
     fulImg.src = urlImg
     recipeBox.style.display = "flex";
-
     const datos = await consultarApi(APIRecipe+name); //arreglar eso porque eso puede tener espacios
-    console.log(datos)
+    //console.log(datos)
     const ingredientsItem = new Array();
     for(const [key, value] of Object.entries((datos.meals)[0])){
         if(key.startsWith("strIngredient")){
-            console.log(value);
+            //console.log(value);
             (value!="" && value!=null) ? ingredientsItem.push(value) : console.log()
         }
     }
     const recipeItem = (datos.meals)[0].strInstructions;
+    const linkItem = (datos.meals)[0].strYoutube;
+    linkRecipe.href = (datos.meals)[0].strYoutube;
     openDescImg(ingredientsItem,recipeItem)
 }
 const ingreRecipe = document.getElementById("dis-ingre");
@@ -192,13 +189,13 @@ function openDescImg(ingre,prep){
     newList.setAttribute("class","list-dis-ingre");
     const ListOld = document.querySelector(".list-dis-ingre");
     ingreRecipe.replaceChild(newList, ListOld);
-    console.log(ingre)
-    console.log(prep)
+    //console.log(ingre)
+    //console.log(prep)
     for(let i of ingre){
         var newItemList = document.createElement("li");
         newItemList.innerHTML=i;
         newList.appendChild(newItemList);
-        console.log(i)
+        //console.log(i)
     }
     ingreRecipe.appendChild(newList);
     var newText = document.createElement("p");
@@ -251,5 +248,4 @@ async function crearGalería(name, photo){
         //console.log(SubGalery);
     }
     DivGallery.appendChild(SubGalery);
-    console.log('listo galeria')
 }
