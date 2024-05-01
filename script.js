@@ -22,22 +22,37 @@ OptionFilter.onchange = function () {
             : updatefilter(APINationality);
 };
 
-/*Conexion con APIs*/ //por ahora solo con APIRecipe
-async function consultarApiRecipe(url){
+/*Conexion con APIs*/
+async function consultarApi(url){
     try{
+        //console.log(url);
         const response = await axios.get(url);
-        /*Validación de estatus*/
-
+        //console.log(response)
         return response.data;
     }catch(error){
+        console.log("entra a error!")
         console.error(`fallo la consulta a la api: ${error}`);
-        const contError = document.querySelector('.error');
-        const contDish = document.querySelector('.request');
-        contError.style.display = 'inline-block';
-        contDish.style.display = 'none';
+        updateWindow(false);
     }
 }
-
+async function obtenerDatosDish(url){
+    const datos = await consultarApi(url);
+    console.log(datos)
+    const Names = new Array();
+    const Images = new Array();
+    if(Array.isArray(datos.meals)==true){ //datos correctos
+        for(let index in datos.meals){
+            Names.push((datos.meals)[index].strMeal);
+            Images.push((datos.meals)[index].strMealThumb);
+            if(index==17){break;} //máximo 18 platos
+        }
+    }else{
+        updateWindow(false);
+    }
+    console.log(Names);
+    console.log(Images);
+    crearGalería(Names,Images)
+}
 
 /*Captura de datos ingresador*/
 const searchButton = document.querySelector('.search button');
@@ -45,56 +60,124 @@ const searchInput = document.querySelector('.search input');
 "3. Escuchador de eventos: "
 searchButton.addEventListener( /*Se agrega CallBack, función que se ejecuta en el momento del evento*/
     "click", () => { /*Función anonima para obtener datos del plato*/
-        const inputData = searchInput.value;          /*.textContent; cuando está dentro de etiquetas*/
-        
-        console.log(APIused.length-2)
-        console.log(APIused.lastIndexOf('s'))
-        //verificar info.
-        /*
-        const url_api = "";
-        (APIused.lastIndexOf('s') === APIused.length-2) ?
-
-        const url = `${inputData}`;
-        console.log(url);*/
-        //obtenerDatosClima(url);
+        //Se limpia la pantalla de algún error anterior:
+        updateWindow(true);
+        //Se lee el valor ingresado por el usuario y se verifica levemente:
+        let inputData = String(searchInput.value);
+        if((APIused.lastIndexOf('c') === APIused.length-2)){        //Por categoría
+            if(verifCategory(inputData)){
+                obtenerDatosDish(APIused+inputData)
+            }
+        }else if((APIused.lastIndexOf('i') === APIused.length-2)){  //Por ingrediente
+            console.log("por ingrediente");
+            if(verifIngredient("https://www.themealdb.com/api/json/v1/1/list.php?i=list",inputData)){
+                inputData = inputData.replace(/ /g, "_");    
+                obtenerDatosDish(APIused+inputData)
+            }
+        }else if ((APIused.lastIndexOf('a') === APIused.length-2)){ //Por nacionalidad
+            console.log("por nacionalidad");
+            if(verifNationality(inputData)){
+                console.log("Nacionalidad verificada")
+                obtenerDatosDish(APIused+inputData)
+            }
+        }else{                                                      //Por plato
+            console.log("por plato")
+            obtenerDatosDish(APIused+inputData);
+        }
     }
-
 )
 
+/*Verificación de area/nacionalidad*/
+function verifNationality(input){
+    const possiblities = Array("American","British","Canadian","Chinese","Croatian",
+                            "Dutch","Egyptian","Filipino","French","Greek","Indian",
+                            "Irish","Italian","Jamaican","Japanese","Kenyan","Malaysian",
+                            "Mexican","Moroccan","Polish","Portuguese","Russian","Spanish",
+                            "Thai","Tunisian","Turkish","Unknown","Vietnamese");
+    for(p of possiblities){
+        if (p.toLowerCase() === input.toLowerCase()){
+            return true;
+        }
+    }
+    updateWindow(false);
+    return false;
+}
 
+/*Verificación de ingrediente*/
+async function verifIngredient(url,input){
+    const datos = await consultarApi(url);
+    console.log(datos)
+    for(let e of datos.meals){
+        //console.log(e.strIngredient)
+        if(e.strIngredient.toLowerCase() === input.toLowerCase()){
+            return true
+        }
+    }
+    updateWindow(false);
+    return false;
+}
 
+/*Verificación de categoría*/
+function verifCategory(input){
+    const possiblities = Array("beef","breakfast","chicken","dessert","goat","lamb","miscellaneous",
+                                "pasta","pork","seafood","side","starter","vegan","vegetarian");
+    for(p of possiblities){
+        if (p === input.toLowerCase()){
+            return true;
+        }
+    }
+    updateWindow(false);
+    return false;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*Actualización de pantalla*/
+function updateWindow(state){
+    /*
+    Recibe una variable booleana donde si es true se actualiza con la
+    información nueva del servidor mientras que si es false muestra en
+    pantalla que los datos no pudieron ser cargados.
+    */
+    //Se limpia la pantalla de algún error anterior:
+    const contError = document.querySelector('.error');
+    const contDish = document.querySelector('.request');
+    if (state){
+        contError.style.display = 'none';
+        contDish.style.display = 'inline-block';
+    }else{   //hubo error
+        contError.style.display = 'inline-block';
+        contDish.style.display = 'none';
+    }
+   
+}
 
 /*Creación de una sola página con información de 1 plato*/
 const recipeBox = document.querySelector(".ful-img");
 const nameRecipe = document.getElementById("dis-name");
 const fulImg = document.getElementById("fulImg");
-function openFulImg(urlImg, name){
+async function openFulImg(urlImg, name){
     /*
     Función que recibe la url de la imagen para poder adjuntarla a 
-    la página y también recibe el nombre del plato.
+    la página y también recibe el nombre del plato, asimismo, internamente
+    llama al servidor para averiguar los ingredientes e instrucciones del 
+    plato especifico. Además, llama a otra función (CallBack) con el
+    fin de modificar la página con especificaciones de la receta señalada.
     */
     console.log(recipeBox)
     nameRecipe.innerHTML=name;
     fulImg.src = urlImg
     recipeBox.style.display = "flex";
+
+    const datos = await consultarApi(APIRecipe+name); //arreglar eso porque eso puede tener espacios
+    console.log(datos)
+    const ingredientsItem = new Array();
+    for(const [key, value] of Object.entries((datos.meals)[0])){
+        if(key.startsWith("strIngredient")){
+            console.log(value);
+            (value!="" && value!=null) ? ingredientsItem.push(value) : console.log()
+        }
+    }
+    const recipeItem = (datos.meals)[0].strInstructions;
+    openDescImg(ingredientsItem,recipeItem)
 }
 const ingreRecipe = document.getElementById("dis-ingre");
 const prepRecipe = document.getElementById("dis-reci");
@@ -107,6 +190,10 @@ function openDescImg(ingre,prep){
     */
     var newList = document.createElement("ul");
     newList.setAttribute("class","list-dis-ingre");
+    const ListOld = document.querySelector(".list-dis-ingre");
+    ingreRecipe.replaceChild(newList, ListOld);
+    console.log(ingre)
+    console.log(prep)
     for(let i of ingre){
         var newItemList = document.createElement("li");
         newItemList.innerHTML=i;
@@ -115,6 +202,10 @@ function openDescImg(ingre,prep){
     }
     ingreRecipe.appendChild(newList);
     var newText = document.createElement("p");
+    newText.setAttribute("class","inst-text");
+    const oldText = document.querySelector(".inst-text");
+    prepRecipe.replaceChild(newText, oldText);
+
     newText.innerHTML=prep;
     prepRecipe.appendChild(newText);
 }
@@ -126,10 +217,19 @@ function closeImg(){
 async function crearGalería(name, photo){
     /*
     Función que recibe dos arrays con las imagenes y nombres de
-    los diferentes platos a poner en la galería.
+    los diferentes platos a poner en la galería. Además de ello,
+    también recibe dos arrays donde ingredient es un array de arrays
+    e instruction es un array de strings.
     */
     "Se toma el espacio de la galería en el html"
     let DivGallery = document.querySelector('.request');
+    "Se crea un subespacio de galería"
+    const SubGalery = document.createElement("div");
+    SubGalery.setAttribute("class","subgallery");
+    "Se reemplaza el subespacio de galería existente"
+    const SubGaleryOld = document.querySelector(".subgallery");
+    DivGallery.replaceChild(SubGalery, SubGaleryOld);
+    //console.log(DivGallery)
     "Por cada plato se saca la imagen y la foto para ponerla en espacio anterior"
     for (let e in name){
         var newItem = document.createElement("div");
@@ -144,62 +244,12 @@ async function crearGalería(name, photo){
         var newDescription = document.createElement("div");
         newDescription.setAttribute("class","description");
         newDescription.innerHTML=name[e];
-        newItem.appendChild(newPhoto);
-        newItem.appendChild(newDescription);
-        console.log(newItem);
-        DivGallery.appendChild(newItem);
-        console.log(DivGallery);
+        newItem.appendChild(newPhoto);          
+        newItem.appendChild(newDescription);    
+        //console.log(newItem);
+        SubGalery.appendChild(newItem);        
+        //console.log(SubGalery);
     }
+    DivGallery.appendChild(SubGalery);
     console.log('listo galeria')
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-nam=Array("primer123456789","second","tervero","cuarto","5","6to","7mo","octavo",
-"primer123456789","second","tervero","cuarto","5","6to","7mo","octavo");
-phot=Array("images/check-mark.png","images/img1.png","images/img2.png",
-        "images/img3.png","images/img4.png","images/img5.png","images/img6.png"
-        ,"images/img7.png","images/img8.png","images/check-mark.png","images/img1.png","images/img2.png",
-        "images/img3.png","images/img4.png","images/img5.png","images/img6.png"
-        ,"images/img7.png","images/img8.png");
-ing=Array("images/check-mark.png","images/img1.png","images/img2.png",
-        "images/img3.png","images/img4.png","images/img5.png","images/img6.png"
-        ,"images/img7.png","images/img8.png","images/check-mark.png","images/img1.png","images/img2.png",
-        "images/img3.png","images/img4.png","images/img5.png","images/img6.png"
-        ,"images/img7.png","images/img8.png");
-prep=Array("images/check-mark.png","images/img1.png","images/img2.png",
-"images/img3.png","images/img4.png","images/img5.png","images/img6.png"
-,"images/img7.png","images/img8.png","images/check-mark.png","images/img1.png","images/img2.png",
-"images/img3.png","images/img4.png","images/img5.png","images/img6.png"
-,"images/img7.png","images/img8.png");
-
-ArrayInfo = Array(nam,phot,ing,prep);
-crearGalería(nam, phot);
-necesita = Array("qwe","segundooo","tercerooo");
-openDescImg(necesita,"holas que más,esta es la prepa de esta vaina");
